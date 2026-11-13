@@ -1,29 +1,23 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 void main() {
   runApp(const PastelBaggageApp());
 }
-
-// Replace these details before submitting.
+// Author and repository details.
 const authorName = 'SARAH NABILAH BINTI ABD WAHAB';
 const matricNumber = '2024651438';
 const courseName = 'CDCS251 - Computer Science Netcentrics';
 const githubUrl =  'https://github.com/SarahNabilahWahab/excess_baggage_assignment';
-
 const ink = Color(0xFF34334D);
 const purple = Color(0xFF68548E);
 const lavender = Color(0xFFECE4FA);
 const mint = Color(0xFFE1F1E9);
 const peach = Color(0xFFFFE9DC);
 const background = Color(0xFFFAF8FD);
-
 class PastelBaggageApp extends StatelessWidget {
   const PastelBaggageApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -57,17 +51,13 @@ class PastelBaggageApp extends StatelessWidget {
     );
   }
 }
-
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
-
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
-
 class _MainScreenState extends State<MainScreen> {
   int selectedPage = 0;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,74 +98,57 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
   final formKey = GlobalKey<FormState>();
   final weightController = TextEditingController();
   final rateController = TextEditingController(text: '15');
   final resultKey = GlobalKey();  
-
   String ticketClass = 'Economy';
-
+  bool useManualRate = false;
   double? calculatedWeight;
   double? calculatedRate;
   double? excessWeight;
   double? baggageCharge;
   double? serviceTax;
   double? totalPayable;
-
   double get allowance => ticketClass == 'Economy' ? 20 : 40;
-
   @override
   void dispose() {
     weightController.dispose();
     rateController.dispose();
     super.dispose();
   }
-
   // Clear an old result whenever the inputs change.
   void invalidateResult() {
     if (totalPayable == null) return;
-
     setState(() {
       totalPayable = null;
     });
   }
-
   String? validateNumber(String? value, String fieldName) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter $fieldName.';
     }
-
     final number = double.tryParse(value.trim());
-
     if (number == null || !number.isFinite || number < 0) {
       return 'Enter a valid number of 0 or more.';
     }
-
     return null;
   }
-
   void calculate() {
     FocusScope.of(context).unfocus();
-
     if (!formKey.currentState!.validate()) return;
-
     final weight = double.parse(weightController.text.trim());
     final rate = double.parse(rateController.text.trim());
-
     final excess = math.max(0.0, weight - allowance);
     final charge = excess * rate;
     final tax = charge * 0.08;
     final total = charge + tax;
-
     if (!charge.isFinite || !tax.isFinite || !total.isFinite) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -184,7 +157,6 @@ class _HomePageState extends State<HomePage> {
       );
       return;
     }
-
     setState(() {
       calculatedWeight = weight;
       calculatedRate = rate;
@@ -193,12 +165,9 @@ class _HomePageState extends State<HomePage> {
       serviceTax = tax;
       totalPayable = total;
     });
-    
     WidgetsBinding.instance.addPostFrameCallback((_) {
   if (!mounted) return;
-
   final resultContext = resultKey.currentContext;
-
   if (resultContext != null) {
     Scrollable.ensureVisible(
       resultContext,
@@ -208,18 +177,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 });
-
-
   }
-
   void reset() {
     FocusScope.of(context).unfocus();
     formKey.currentState!.reset();
     weightController.clear();
     rateController.text = '15';
-
     setState(() {
       ticketClass = 'Economy';
+      useManualRate = false;
       calculatedWeight = null;
       calculatedRate = null;
       excessWeight = null;
@@ -228,7 +194,6 @@ class _HomePageState extends State<HomePage> {
       totalPayable = null;
     });
   }
-
   Widget numberField({
     required TextEditingController controller,
     required String label,
@@ -262,7 +227,6 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -338,7 +302,9 @@ class _HomePageState extends State<HomePage> {
                           onSelected: (_) {
                             setState(() {
                               ticketClass = 'Economy';
-                              rateController.text = '15';
+                              if (!useManualRate) {
+                                rateController.text = '15';
+                              }
                               totalPayable = null;
                             });
                           },
@@ -351,7 +317,9 @@ class _HomePageState extends State<HomePage> {
                           onSelected: (_) {
                             setState(() {
                               ticketClass = 'Business';
-                              rateController.text = '12';
+                              if (!useManualRate) {
+                                rateController.text = '12';
+                              }
                               totalPayable = null;
                             });
                           },
@@ -365,20 +333,68 @@ class _HomePageState extends State<HomePage> {
                       style: const TextStyle(color: purple),
                     ),
                     const SizedBox(height: 20),
-                    TextFormField(
-                      controller: rateController,
-                      readOnly: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Automatic excess baggage rate',
-                        suffixText: 'RM / kg',
-                        prefixIcon: Icon(
-                          Icons.payments_outlined,
-                          color: purple,
-                        ),
-                        helperText: 'Sample rate based on your selected ticket class.',
-                        helperMaxLines: 2,
-                      ),
-                    ),
+                    Column(
+  crossAxisAlignment: CrossAxisAlignment.stretch,
+  children: [
+    // Select automatic or manual rate
+    SegmentedButton<bool>(
+      segments: const [
+        ButtonSegment<bool>(
+          value: false,
+          label: Text('Automatic'),
+          icon: Icon(Icons.auto_awesome),
+        ),
+        ButtonSegment<bool>(
+          value: true,
+          label: Text('Manual'),
+          icon: Icon(Icons.edit_outlined),
+        ),
+      ],
+      selected: {useManualRate},
+      onSelectionChanged: (selection) {
+        setState(() {
+          useManualRate = selection.first;
+          if (!useManualRate) {
+            rateController.text =
+                ticketClass == 'Economy' ? '15' : '12';
+          }
+          totalPayable = null;
+        });
+      },
+    ),
+    const SizedBox(height: 16),
+    // Existing rate field
+    TextFormField(
+      controller: rateController,
+      readOnly: !useManualRate,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          return RegExp(r'^\d*\.?\d*$').hasMatch(newValue.text)
+              ? newValue
+              : oldValue;
+        }),
+      ],
+      decoration: InputDecoration(
+        labelText: useManualRate
+            ? 'Enter excess baggage rate'
+            : 'Automatic excess baggage rate',
+        suffixText: 'RM / kg',
+        prefixIcon: const Icon(
+          Icons.payments_outlined,
+          color: purple,
+        ),
+        helperText: useManualRate
+            ? 'Enter your preferred rate per kilogram.'
+            : 'Sample rate based on your selected ticket class.',
+        helperMaxLines: 2,
+      ),
+      validator: (value) =>
+          validateNumber(value, 'excess baggage rate'),
+      onChanged: (_) => invalidateResult(),
+    ),
+  ],
+),
                     const SizedBox(height: 12),
                     const Text(
                       'An 8% service tax is assumed for this assignment.',
@@ -495,7 +511,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
   Widget resultRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -516,17 +531,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
-
   Future<void> openGitHub(BuildContext context) async {
     try {
       final opened = await launchUrl(
         Uri.parse(githubUrl),
         mode: LaunchMode.externalApplication,
       );
-
       if (!opened && context.mounted) {
         showLinkError(context);
       }
@@ -534,13 +546,11 @@ class AboutPage extends StatelessWidget {
       if (context.mounted) showLinkError(context);
     }
   }
-
   void showLinkError(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Unable to open the GitHub link.')),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -663,17 +673,14 @@ class AboutPage extends StatelessWidget {
     );
   }
 }
-
 class PastelPanel extends StatelessWidget {
   const PastelPanel({
     super.key,
     required this.color,
     required this.child,
   });
-
   final Color color;
   final Widget child;
-
   @override
   Widget build(BuildContext context) {
     return Container(
