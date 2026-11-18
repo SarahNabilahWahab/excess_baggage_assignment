@@ -1,21 +1,25 @@
 // Prevents a negative excess weight with max().
 import 'dart:math' as math;
+
 // Provides Flutter widgets for the interface.
 import 'package:flutter/material.dart';
 // Provides the input formatter.
 import 'package:flutter/services.dart';
 // Opens the GitHub link.
 import 'package:url_launcher/url_launcher.dart';
+
 // Starts the Flutter app.
 void main() {
   runApp(const PastelBaggageApp());
 }
+
 // Author and repository details.
 // Set the developer details and GitHub URL here.
 const authorName = 'SARAH NABILAH BINTI ABD WAHAB';
 const matricNumber = '2024651438';
 const courseName = 'CDCS251 - Computer Science Netcentrics';
-const githubUrl =  'https://github.com/SarahNabilahWahab/excess_baggage_assignment';
+const githubUrl =
+    'https://github.com/SarahNabilahWahab/excess_baggage_assignment';
 // Set the app colours here.
 const ink = Color(0xFF34334D);
 const purple = Color(0xFF68548E);
@@ -23,6 +27,7 @@ const lavender = Color(0xFFECE4FA);
 const mint = Color(0xFFE1F1E9);
 const peach = Color(0xFFFFE9DC);
 const background = Color(0xFFFAF8FD);
+
 // Sets up the app theme and starting screen.
 class PastelBaggageApp extends StatelessWidget {
   const PastelBaggageApp({super.key});
@@ -44,14 +49,13 @@ class PastelBaggageApp extends StatelessWidget {
           backgroundColor: background,
           foregroundColor: ink,
           centerTitle: true,
+          scrolledUnderElevation: 0,
         ),
         // Sets the default text field styling.
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: Color(0xFFD7CEE5)),
@@ -62,12 +66,14 @@ class PastelBaggageApp extends StatelessWidget {
     );
   }
 }
+
 // Tracks the selected tab.
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
+
 class _MainScreenState extends State<MainScreen> {
   // 0 opens Home. 1 opens About.
   int selectedPage = 0;
@@ -75,19 +81,16 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          '🧳 Baggage Fee Calculator',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          selectedPage == 0 ? '🧳 Baggage Fee Calculator' : 'About',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       // IndexedStack preserves the calculator when visiting About.
       // Keeps the calculator inputs and results when switching tabs.
       body: IndexedStack(
         index: selectedPage,
-        children: const [
-          HomePage(),
-          AboutPage(),
-        ],
+        children: const [HomePage(), AboutPage()],
       ),
       // Shows the Home and About buttons.
       bottomNavigationBar: NavigationBar(
@@ -114,12 +117,14 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+
 // Stores the calculator inputs and results.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
   State<HomePage> createState() => _HomePageState();
 }
+
 class _HomePageState extends State<HomePage> {
   // formKey validates and resets the form. Controllers hold the field text.
   // resultKey finds the results panel for scrolling.
@@ -148,6 +153,7 @@ class _HomePageState extends State<HomePage> {
     rateController.dispose();
     super.dispose();
   }
+
   // Clear an old result whenever the inputs change.
   // Hides the previous result when an input changes.
   void invalidateResult() {
@@ -156,6 +162,7 @@ class _HomePageState extends State<HomePage> {
       totalPayable = null;
     });
   }
+
   // Accepts numbers of zero or more and shows an error for invalid input.
   String? validateNumber(String? value, String fieldName) {
     if (value == null || value.trim().isEmpty) {
@@ -167,6 +174,7 @@ class _HomePageState extends State<HomePage> {
     }
     return null;
   }
+
   // Returns an error for an invalid or overweight entry.
   String? validateWeight(String? value) {
     if (value == null || value.isEmpty) return 'Please enter baggage weight.';
@@ -180,6 +188,7 @@ class _HomePageState extends State<HomePage> {
     }
     return null;
   }
+
   // Rejects invalid edits while showing why they were rejected.
   TextEditingValue formatWeight(
     TextEditingValue oldValue,
@@ -196,6 +205,7 @@ class _HomePageState extends State<HomePage> {
     }
     return error == null ? newValue : oldValue;
   }
+
   // Checks the inputs and calculates the total fee.
   void calculate() {
     FocusScope.of(context).unfocus();
@@ -244,6 +254,7 @@ class _HomePageState extends State<HomePage> {
       }
     });
   }
+
   // Clears the form and returns to Economy, Automatic and RM15 per kg.
   void reset() {
     FocusScope.of(context).unfocus();
@@ -262,6 +273,7 @@ class _HomePageState extends State<HomePage> {
       totalPayable = null;
     });
   }
+
   // Builds a number field using the supplied label, unit and icon.
   Widget numberField({
     required TextEditingController controller,
@@ -307,6 +319,7 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     // Makes the page scrollable and limits its width to 600 pixels.
@@ -319,30 +332,15 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const PastelPanel(
-                color: lavender,
-                child: Column(
-                  children: [
-                    Icon(Icons.luggage_rounded, size: 70, color: purple),
-                    SizedBox(height: 12),
-                    Text(
-                      'Pack smart. Travel happy.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: ink,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Estimate your excess baggage fee before you fly.',
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+              // Shows the basic steps above the calculator form.
+              const PageHeader(
+                title: 'How to use',
+                subtitle:
+                    'Enter a weight from 0 to 100 kg. Choose your ticket '
+                    'class. Use the automatic rate or enter a manual rate. '
+                    'Tap Calculate fee to see your estimate.',
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               // Groups the fields for validation and reset.
               Form(
                 key: formKey,
@@ -445,8 +443,9 @@ class _HomePageState extends State<HomePage> {
                             setState(() {
                               useManualRate = selection.first;
                               if (!useManualRate) {
-                                rateController.text =
-                                    ticketClass == 'Economy' ? '15' : '12';
+                                rateController.text = ticketClass == 'Economy'
+                                    ? '15'
+                                    : '12';
                               }
                               totalPayable = null;
                             });
@@ -458,11 +457,17 @@ class _HomePageState extends State<HomePage> {
                           controller: rateController,
                           // Lets the user edit the rate in Manual mode.
                           readOnly: !useManualRate,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
                           // Allows digits and one decimal point.
                           inputFormatters: [
-                            TextInputFormatter.withFunction((oldValue, newValue) {
-                              return RegExp(r'^\d*\.?\d*$').hasMatch(newValue.text)
+                            TextInputFormatter.withFunction((
+                              oldValue,
+                              newValue,
+                            ) {
+                              return RegExp(r'^\d*\.?\d*$')
+                                      .hasMatch(newValue.text)
                                   ? newValue
                                   : oldValue;
                             }),
@@ -612,6 +617,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
   // Displays a result label on the left and its value on the right.
   Widget resultRow(String label, String value) {
     return Padding(
@@ -633,6 +639,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
 // Shows developer details, the GitHub link and copyright.
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -650,12 +657,14 @@ class AboutPage extends StatelessWidget {
       if (context.mounted) showLinkError(context);
     }
   }
+
   // Shows a message if the GitHub link fails to open.
   void showLinkError(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Unable to open the GitHub link.')),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     // Makes the page scrollable and limits its width to 600 pixels.
@@ -667,33 +676,9 @@ class AboutPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const PastelPanel(
-                color: lavender,
-                child: Column(
-                  children: [
-                    // Visible application icon required on About.
-                    CircleAvatar(
-                      radius: 46,
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.luggage_rounded,
-                        size: 54,
-                        color: purple,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      '🧳 Baggage Fee Calculator',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: ink,
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Text('A little help before your next flight.'),
-                  ],
-                ),
+              const PageHeader(
+                title: 'Baggage Fee Calculator',
+                subtitle: 'Developer details and project source code.',
               ),
               const SizedBox(height: 20),
               const PastelPanel(
@@ -754,9 +739,7 @@ class AboutPage extends StatelessWidget {
                       icon: const Icon(Icons.open_in_new),
                       label: const Text(
                         githubUrl,
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                        ),
+                        style: TextStyle(decoration: TextDecoration.underline),
                       ),
                     ),
                   ],
@@ -781,13 +764,42 @@ class AboutPage extends StatelessWidget {
     );
   }
 }
+
+// Gives Home and About the same header layout.
+class PageHeader extends StatelessWidget {
+  const PageHeader({super.key, required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return PastelPanel(
+      color: lavender,
+      child: Column(
+        children: [
+          const Icon(Icons.luggage_rounded, size: 44, color: purple),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: ink,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(subtitle, textAlign: TextAlign.center),
+        ],
+      ),
+    );
+  }
+}
+
 // Builds a reusable rounded panel with a supplied colour and child widget.
 class PastelPanel extends StatelessWidget {
-  const PastelPanel({
-    super.key,
-    required this.color,
-    required this.child,
-  });
+  const PastelPanel({super.key, required this.color, required this.child});
   final Color color;
   final Widget child;
   @override
